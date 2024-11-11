@@ -1,0 +1,23 @@
+[
+	{
+		"id": 1,
+		"title": "Manzana",
+		"status": false,
+		"stock": 250,
+		"thumbnail": "11473559.png"
+	},
+	{
+		"id": 2,
+		"title": "Ingrediente de prueba B",
+		"status": true,
+		"stock": 10,
+		"thumbnail": "11479892.png"
+	},
+	{
+		"id": 3,
+		"title": "Ingrediente de prueba C",
+		"status": true,
+		"stock": 15,
+		"thumbnail": "bananas-white-background.jpg"
+	}
+]
