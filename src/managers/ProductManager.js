@@ -44,22 +44,23 @@ export default class ProductManager {
 
     async insertOne(data, file) {
         try {
-            const { title, status, stock } = data;
+            const { title, description, code, price, category, status, stock } = data;
+            //console.log("Datos recibidos en el backend:", data); // Log para depuración
 
-            if (!title || !status || !stock) {
+            if (!title || !status || !stock || !description || !code || !price || !category) {
                 throw new ErrorManager("Faltan datos obligatorios", 400);
-            }
-
-            if (!file?.filename) {
-                throw new ErrorManager("Falta el archivo de la imagen", 400);
-            }
+            }           
 
             const product = {
                 id: generateId(await this.getAll()),
                 title,
+                description,
+                code,
+                price: Number(price),
+                category,
                 status: convertToBoolean(status),
                 stock: Number(stock),
-                thumbnail: file?.filename,
+                thumbnail: file?.filename ?? null,
             };
 
             this.#products.push(product);
@@ -74,13 +75,17 @@ export default class ProductManager {
 
     async updateOneById(id, data, file) {
         try {
-            const { title, status, stock } = data;
+            const { title, description, code, price, category, status, stock } = data;
             const productFound = await this.#findOneById(id);
             const newThumbnail = file?.filename;
 
             const product = {
                 id: productFound.id,
                 title: title || productFound.title,
+                description: description || productFound.description,
+                code: code || productFound.code,
+                price: price ? Number(price) : productFound.price,
+                category: category || productFound.category,
                 status: status ? convertToBoolean(status) : productFound.status,
                 stock: stock ? Number(stock) : productFound.stock,
                 thumbnail: newThumbnail || productFound.thumbnail,
@@ -88,6 +93,7 @@ export default class ProductManager {
 
             const index = this.#products.findIndex((item) => item.id === Number(id));
             this.#products[index] = product;
+            
             await writeJsonFile(paths.files, this.#jsonFilename, this.#products);
 
             if (file?.filename && newThumbnail !== productFound.thumbnail) {
@@ -106,7 +112,7 @@ export default class ProductManager {
             const productFound = await this.#findOneById(id);
 
             if (productFound.thumbnail) {
-                await deleteFile(paths.images, ingredientFound.thumbnail);
+                await deleteFile(paths.images, productFound.thumbnail);
             }
 
             const index = this.#products.findIndex((item) => item.id === Number(id));

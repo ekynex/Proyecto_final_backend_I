@@ -1,0 +1,47 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+header h1{
+    font-size: 1.7rem;
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 500px;
+}
+
+.pb h3{
+    text-align: center;
+}
+
+.products__list__item{
+    padding: 0;
+}
+
+.sb{
+    display: flex;
+    flex-direction: column;
+    width: 500px;
+}
+
+.sb h3{
+    text-align: center;
+}
+
+.sb form{
+    display: flex;
+    flex-direction: column;
+}
+
+.sb form input{
+    padding: 10px 0 10px 10px;
+    margin: 5px 0;
+}
