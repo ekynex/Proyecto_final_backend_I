@@ -1,12 +1,16 @@
 import express from 'express';
 import { config as configHandlebars } from "./config/handlebars.config.js";//proyecto 2
 import { config as configWebsocket } from "./config/websocket.config.js";//proyecto 2
+import { connectDB } from "./config/moongose.config.js";
 
 import routerCart from './routes/cart.router.js';
 import routerProducts from './routes/product.router.js'
 import routerViewHome from './routes/home.view.router.js'
 
 const app = express();
+
+connectDB();
+
 const PORT = 8080;
 
 app.use("/api/public", express.static("./src/public"));
