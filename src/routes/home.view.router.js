@@ -10,4 +10,13 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/cart", (req, res) => {
+    res.render("cart", { title: "Carrito" });
+});
+
+router.get("/realTimeProducts", (req, res) => {
+    res.render("realTimeProducts", { title: "Productos en Tiempo Real" });
+});
+
+
 export default router;

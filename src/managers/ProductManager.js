@@ -5,9 +5,11 @@ import { convertToBoolean } from "../utils/converter.js";
 
 export default class ProductManager {
     #productModel;
+    #socketServer;
 
-    constructor() {
+    constructor(socketServer) {
         this.#productModel = ProductModel;
+        this.#socketServer = socketServer;
     }
 
     async #findOneById(id) {
@@ -98,7 +100,8 @@ export default class ProductManager {
                 status: convertToBoolean(data.status),
                 thumbnail: filename ?? "image-not-found.jpg" 
             });
-            
+
+            this.#socketServer.emit("cart-updated", { cart });
             return product;
 
         } catch (error) {

@@ -1,84 +1,140 @@
 import { Router } from "express";
 import CartManager from "../managers/CartManager.js";
 
-const router = Router();
-const cartManager = new CartManager();
+export default (socketServer) => {
+  const router = Router();
+  const cartManager = new CartManager();
 
-router.get("/", async (req, res) => {
+  router.get("/", async (req, res) => {
     try {
-        const carts = await cartManager.getAll(req.query);
-        res.status(200).json({ status: "success", payload: carts });
+      const carts = await cartManager.getAll(req.query);
+      res.status(200).json({ status: "success", payload: carts });
     } catch (error) {
-        res.status(error.code || 500).json({ status: "error", message: error.message });
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
     }
-});
+  });
 
-router.get("/:id", async (req, res) => {
+  router.get("/:id", async (req, res) => {
     try {
-        const cart = await cartManager.getOneById(req.params.id);
-        res.status(200).json({ status: "success", payload: cart });
+      const cart = await cartManager.getOneById(req.params.id);
+      res.status(200).json({ status: "success", payload: cart });
     } catch (error) {
-        res.status(error.code || 500).json({ status: "error", message: error.message });
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
     }
-});
+  });
 
-router.post("/", async (req, res) => {
+  router.post("/", async (req, res) => {
     try {
-        const cart = await cartManager.insertOne(req.body);
-        res.status(201).json({ status: "success", payload: cart });
+      const cart = await cartManager.insertOne(req.body);
+      res.status(201).json({ status: "success", payload: cart });
     } catch (error) {
-        res.status(error.code || 500).json({ status: "error", message: error.message });
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
     }
-});
+  });
 
-router.put("/:id", async (req, res) => {
+  router.put("/:id", async (req, res) => {
     try {
-        const cart = await cartManager.updateCart(req.params.id, req.body.products);
-        res.status(200).json({ status: "success", payload: cart });
+      const cart = await cartManager.updateCart(
+        req.params.id,
+        req.body.products
+      );
+      res.status(200).json({ status: "success", payload: cart });
     } catch (error) {
-        res.status(error.code || 500).json({ status: "error", message: error.message });
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
     }
-});
+  });
 
-router.put("/:id/products/:productId", async (req, res) => {
+  router.put("/:cid", async (req, res) => {
+    try {
+      const { cid } = req.params;
+      const { products } = req.body; // Recibimos el arreglo de productos
+
+      const updatedCart = await cartManager.updateCart(cid, products);
+      res.status(200).json({ status: "success", payload: updatedCart });
+    } catch (error) {
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
+    }
+  });
+
+  router.put("/:id/products/:productId", async (req, res) => {
     console.log("Ruta PUT ejecutada");
     try {
-        const { id, productId } = req.params;
-        const updatedCart = await cartManager.addOneProduct(id, productId);
-        res.status(200).json({ status: "success", payload: updatedCart });
+      const { id, productId } = req.params;
+      const updatedCart = await cartManager.addOneProduct(id, productId);
+      res.status(200).json({ status: "success", payload: updatedCart });
     } catch (error) {
-        res.status(error.statusCode || 500).json({
-            status: "error",
-            message: error.message,
-        });
+      res.status(error.statusCode || 500).json({
+        status: "error",
+        message: error.message,
+      });
     }
-});
+  });
 
-router.delete("/:id/products/:productId", async (req, res) => {
+  router.put("/:cid/products/:pid", async (req, res) => {
     try {
-        const cart = await cartManager.deleteOneProduct(req.params.id, req.params.productId);
-        res.status(200).json({ status: "success", payload: cart });
-    } catch (error) {
-        res.status(error.code || 500).json({ status: "error", message: error.message });
-    }
-});
+      const { cid, pid } = req.params;
+      const { quantity } = req.body; // Recibimos la cantidad
 
-router.delete("/:id", async (req, res) => {
+      const updatedCart = await cartManager.updateProductQuantity(
+        cid,
+        pid,
+        quantity
+      );
+      res.status(200).json({ status: "success", payload: updatedCart });
+    } catch (error) {
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
+    }
+  });
+
+  router.delete("/:id/products/:productId", async (req, res) => {
     try {
-        const cart = await cartManager.removeAllProductsById(req.params.id);
-        res.status(200).json({ status: "success", payload: cart });
+      const cart = await cartManager.deleteOneProduct(
+        req.params.id,
+        req.params.productId
+      );
+      res.status(200).json({ status: "success", payload: cart });
     } catch (error) {
-        res.status(error.code || 500).json({ status: "error", message: error.message });
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
     }
-});
+  });
 
-router.delete("/delete/:id", async (req, res) => {
+  router.delete("/:id", async (req, res) => {
     try {
-        await cartManager.deleteOneById(req.params.id);
-        res.status(200).json({ status: "success", message: "Carrito eliminado exitosamente" });
+      const cart = await cartManager.removeAllProductsById(req.params.id);
+      res.status(200).json({ status: "success", payload: cart });
     } catch (error) {
-        res.status(error.code || 500).json({ status: "error", message: error.message });
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
     }
-});
+  });
 
-export default router;
+  router.delete("/delete/:id", async (req, res) => {
+    try {
+      await cartManager.deleteOneById(req.params.id);
+      res
+        .status(200)
+        .json({ status: "success", message: "Carrito eliminado exitosamente" });
+    } catch (error) {
+      res
+        .status(error.code || 500)
+        .json({ status: "error", message: error.message });
+    }
+  });
+
+  return router;
+};

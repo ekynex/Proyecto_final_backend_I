@@ -5,9 +5,11 @@ import mongoose from "mongoose";
 
 export default class CartManager {
     #cartModel;
+    #socketServer;
 
-    constructor() {
+    constructor(socketServer) {
         this.#cartModel = CartModel;
+        this.#socketServer = socketServer;
     }
 
     async #findOneById(id) {
@@ -60,15 +62,12 @@ export default class CartManager {
     async addOneProduct(id, productId) {
         try {
             const cart = await this.#findOneById(id);
-            console.log("Carrito encontrado:", cart);
     
             const objectProductId = new mongoose.Types.ObjectId(productId); 
-            console.log("ID del producto:", objectProductId);
     
             const productIndex = cart.products.findIndex(
                 (item) => item.product.toString() === objectProductId.toString()
-            );
-            console.log("Índice del producto en carrito:", productIndex);
+            );         
     
             if (productIndex >= 0) {
                 cart.products[productIndex].quantity++;
@@ -76,38 +75,89 @@ export default class CartManager {
                 cart.products.push({ product: objectProductId, quantity: 1 });
             }
     
-            await cart.save();
-            console.log("Carrito actualizado:", cart);
-    
+            await cart.save();    
+
+            this.#socketServer.emit("cart-updated", { cart });
             return cart;
         } catch (error) {
-            console.error("Error en addOneProduct:", error);
+            throw ErrorManager.handleError(error);
+        }
+    }    
+
+    async updateCart(id, products) {
+        try {
+            const cart = await this.#findOneById(id);
+    
+            if (!Array.isArray(products)) {
+                throw new ErrorManager("El formato de productos es inválido", 400);
+            }
+    
+            for (const product of products) {
+                const productExists = await ProductModel.findById(product.product);
+                if (!productExists) {
+                    throw new ErrorManager(`El producto con ID ${product.product} no existe`, 404);
+                }
+            }
+
+            cart.products = products.map(item => ({
+                product: item.product,
+                quantity: item.quantity,
+            }));
+    
+            await cart.save();
+            return cart;
+        } catch (error) {
+            throw ErrorManager.handleError(error);
+        }
+    }    
+
+    async updateProductQuantity(cartId, productId, quantity) {
+        try {
+            if (quantity <= 0) {
+                throw new ErrorManager("La cantidad debe ser mayor a 0", 400);
+            }
+    
+            const cart = await this.#findOneById(cartId);
+    
+            const productIndex = cart.products.findIndex(
+                item => item.product.toString() === productId
+            );
+    
+            if (productIndex < 0) {
+                throw new ErrorManager("El producto no existe en el carrito", 404);
+            }
+    
+            cart.products[productIndex].quantity = quantity;
+    
+            await cart.save();
+            return cart;
+        } catch (error) {
             throw ErrorManager.handleError(error);
         }
     }    
     
     async deleteOneProduct(id, productId) {
         try {
-            const cart = await this.#findOneById(id); 
-            const objectProductId = new mongoose.Types.ObjectId(productId);
+            const cart = await this.#findOneById(id);     
+    
+            const objectProductId = new mongoose.Types.ObjectId(productId);  
     
             const productIndex = cart.products.findIndex(
-                (item) => item.product.toString() === objectProductId.toString()
-            );
-
+                (item) => item.product._id.toString() === objectProductId.toString()
+            );     
+    
             if (productIndex < 0) {
                 throw new ErrorManager("El producto no existe en el carrito", 404);
             }
-   
+    
             cart.products.splice(productIndex, 1);
-            await cart.save(); 
+            await cart.save();
     
             return cart;
         } catch (error) {
-            console.error("Error en deleteOneProduct:", error);
             throw ErrorManager.handleError(error);
         }
-    }          
+    }             
 
     async deleteOneById(id) {
         try {
@@ -117,13 +167,14 @@ export default class CartManager {
         }
     }
 
-    async removeAllProductsById(id) {
+    async removeAllProductsById(id, socketServer){
         try {
             const cart = await this.#findOneById(id);
 
             cart.products = [];
             await cart.save();
 
+            socketServer.emit("cart-cleared", { cartId: id });
             return cart;
         } catch (error) {
             throw ErrorManager.handleError(error);
