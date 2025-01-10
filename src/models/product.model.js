@@ -47,6 +47,7 @@ const productSchema = new Schema({
     },
     status: {
         type: Boolean,
+        default:true,
         required: [ true, "El stock es obligatorio" ],
         min: [ 0, "El stock debe ser un número positivo" ],
     },

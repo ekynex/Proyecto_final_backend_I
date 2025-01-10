@@ -1,4 +1,6 @@
-const productSocket = io();
+const productSocket = io("http://localhost:8080", {
+    transports: ["websocket", "polling"], 
+});
 
 const productsList = document.getElementById("products-list");
 const productsForm = document.getElementById("products-form");
@@ -28,28 +30,37 @@ productsForm.addEventListener("submit", (event) => {
         title: formdata.get("title"),
         description: formdata.get("description"),
         code: formdata.get("code"),
-        price:formdata.get("price"),
+        price: Number(formdata.get("price")),
         category: formdata.get("category"),
-        status: formdata.get("status") || "off",
-        stock: formdata.get("stock"),
+        status: formdata.get("status") === "on",
+        stock: Number(formdata.get("stock")),
+        thumbnail: formdata.get("file"),
     })   
 });
 
-btnDeleteProduct.addEventListener("click", () => {    
-    const id = inputProductId.value;
-    inputProductId.innerText = "";
+btnDeleteProduct.addEventListener("click", () => {
+    const id = inputProductId.value.trim();
     errorMessage.innerText = "";
+    inputProductId.value = "";
 
-    if (id > 0) {
+    if (id) {
+        console.log("ID enviado para eliminar:", id); 
         productSocket.emit("delete-product", { id });
-    }      
+    } else {
+        errorMessage.innerText = "Por favor, ingresa un ID válido";
+    }
 });
+
 productSocket.on("connect", () => {
     console.log("Conexión establecida con el servidor.");
 });
 
 productSocket.on("error-message", (data) => {
     errorMessage.innerText = data.message;
+});
+
+productSocket.on("connect_error", (err) => {
+    console.error("Error de conexión:", err);
 });
 
 productSocket.on("cart-updated", (data) => {
@@ -61,6 +72,9 @@ productSocket.on("cart-cleared", (data) => {
 });
 
 productSocket.on("products-list", (data) => {
-    console.log("Recibido products-list:", data);
+    const products = data.products || [];
+    productsList.innerText = ""; 
+    products.forEach((product) => {
+        productsList.innerHTML += `<li>Id: ${product._id} - Nombre: ${product.title}</li>`;
+    });
 });
-

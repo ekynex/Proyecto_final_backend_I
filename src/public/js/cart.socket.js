@@ -1,4 +1,6 @@
-const cartSocket = io();
+const cartSocket = io("http://localhost:8080", {
+    transports: ["websocket", "polling"],
+});
 
 const errorMessage = document.getElementById("error-message");
 const cartDetails = document.getElementById("cart-details");
@@ -84,6 +86,10 @@ cartSocket.on("disconnect", () => {
 
 cartSocket.on("error-message", (data) => {
     errorMessage.innerText = data.message;
+});
+
+cartSocket.on("connect_error", (err) => {
+    console.error("Error de conexión:", err);
 });
 
 cartSocket.on("cart-updated", (data) => {

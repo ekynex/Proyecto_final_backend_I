@@ -32,5 +32,3 @@ app.use("/", routerViewHome);
 app.use("*", (req, res) => {
     res.status(404).render("error404", { title: "Error 404" });
 });
-
-configWebsocket(httpServer);
