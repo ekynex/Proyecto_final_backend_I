@@ -14,7 +14,7 @@ export default (socketServer) => {
         .status(error.code || 500)
         .json({ status: "error", message: error.message });
     }
-  });
+  });  
 
   router.get("/:id", async (req, res) => {
     try {
@@ -83,7 +83,7 @@ export default (socketServer) => {
   router.put("/:cid/products/:pid", async (req, res) => {
     try {
       const { cid, pid } = req.params;
-      const { quantity } = req.body; // Recibimos la cantidad
+      const { quantity } = req.body; 
 
       const updatedCart = await cartManager.updateProductQuantity(
         cid,

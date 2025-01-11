@@ -27,6 +27,10 @@ const socketServer = configWebsocket(httpServer);
 
 app.use("/api/products", productRouter(socketServer));
 app.use("/api/carts", cartRouter(socketServer));
+app.use("/products", productRouter);
+app.use("/cart", (req, res) => {
+    res.render("cart", { title: "Carrito" });
+  });
 app.use("/", routerViewHome);
 
 app.use("*", (req, res) => {

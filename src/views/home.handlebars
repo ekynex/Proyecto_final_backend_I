@@ -1,18 +1,19 @@
 <header>
-    <h1>Inicio</h1>
+    <h1>Productos Disponibles</h1>
 </header>
-
 <main>
-    <section>
-        <h3>Productos</h3>
-        <div class="ingredients">
-            <div class="ingredients__list">
-                <ul class="ingredients__list__item" id="ingredients-list"></ul>
-            </div>
-            <button id="btn-refresh-ingredients-list">Recargar Lista</button>
+    <section class="cards-container">
+        {{#if products.length}}
+        {{#each products}}
+        <div class="card">
+            <img src="/api/public/images/{{this.thumbnail}}" alt="{{this.title}}" />
+            <h3>{{this.title}}</h3>
+            <p>Precio: S/{{this.price}}</p>
+            <button onclick="window.location.href='/products/details/{{this._id}}'">Ver Detalles</button>
         </div>
+        {{/each}}
+        {{else}}
+        <p>No hay productos disponibles.</p>
+        {{/if}}
     </section>
 </main>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="/api/public/js/home.socket.js"></script>

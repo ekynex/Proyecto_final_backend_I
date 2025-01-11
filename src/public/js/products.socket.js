@@ -73,8 +73,11 @@ productSocket.on("cart-cleared", (data) => {
 
 productSocket.on("products-list", (data) => {
     const products = data.products || [];
-    productsList.innerText = ""; 
+    productsList.innerText = ""; // Limpiar la lista anterior
+
     products.forEach((product) => {
         productsList.innerHTML += `<li>Id: ${product._id} - Nombre: ${product.title}</li>`;
     });
+    console.log("Lista de productos actualizada:", products);
 });
+

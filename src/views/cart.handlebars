@@ -1,25 +1,24 @@
 <header>
-    <h1>Carrito</h1>
+    <h1>Carrito de Compras</h1>
 </header>
 
 <main>
-
     <section>
-        <h3>Detalles del Carrito</h3>
-        <div id="cart-details"></div>
+        <h3>Productos en el Carrito</h3>
         <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                        <th>Controles</th>
-                    </tr>
-                </thead>
-                <tbody id="cart-items"></tbody>
-            </table>
-            <button id="btn-delete-cart" data-cart-id="{{cart._id}}">Vaciar Carrito</button>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Controles</th>
+                </tr>
+            </thead>
+            <tbody id="cart-items-list"></tbody>
+        </table>
+        <p>Total: S/<span id="cart-total">0.00</span></p>
+        <button id="clear-cart">Vaciar Carrito</button>
         <button onclick="window.history.back()">Volver</button>
     </section>
 
@@ -28,4 +27,3 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/api/public/js/cart.socket.js"></script>
-

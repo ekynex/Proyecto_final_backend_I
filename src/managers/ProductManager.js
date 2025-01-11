@@ -31,7 +31,7 @@ export default class ProductManager {
             const $and = [];
             const limit = parseInt(params?.limit) || 10;
             const page = parseInt(params?.page) || 1;
-
+    
             if (params?.title) {
                 $and.push({ title: { $regex: params.title, $options: "i" } });
             }
@@ -39,51 +39,57 @@ export default class ProductManager {
             if (params?.query) {
                 $and.push({
                     $or: [
-                        { category: { $regex: params.query, $options: "i" } }, // Filtra por categoría
-                        { status: params.query === "true" || params.query === "false" ? params.query === "true" : undefined } // Filtra por disponibilidad
-                    ]
+                        { category: { $regex: params.query, $options: "i" } },
+                        { status: params.query === "true" },
+                    ],
                 });
             }
+    
+            const filters = $and.length > 0 ? { $and } : undefined;
+            console.log("Filters:", filters);
+            console.log("Result:", result.docs);
 
-            const filters = $and.length > 0 ? { $and } : {};
-
+    
             const sort = {
-                asc: { price: 1 }, 
-                desc: { price: -1 } 
+                asc: { price: 1 },
+                desc: { price: -1 },
             };
-
+    
             const paginationOptions = {
                 limit,
-                page,  
-                sort: sort[params?.sort] ?? {}, 
-                lean: true               
+                page,
+                sort: sort[params?.sort] ?? {},
+                lean: true,
             };
-  
+    
+            console.log("Filters:", filters);
+            console.log("Pagination Options:", paginationOptions);
+    
             const result = await this.#productModel.paginate(filters, paginationOptions);
-
+    
             const prevLink = result.hasPrevPage
                 ? `/products?limit=${paginationOptions.limit}&page=${result.prevPage}`
                 : null;
             const nextLink = result.hasNextPage
                 ? `/products?limit=${paginationOptions.limit}&page=${result.nextPage}`
                 : null;
-
+    
             return {
                 status: "success",
-                payload: result.docs,          
-                totalPages: result.totalPages, 
-                prevPage: result.prevPage,     
-                nextPage: result.nextPage,     
-                page: result.page,            
-                hasPrevPage: result.hasPrevPage, 
+                payload: result.docs,
+                totalPages: result.totalPages,
+                prevPage: result.prevPage,
+                nextPage: result.nextPage,
+                page: result.page,
+                hasPrevPage: result.hasPrevPage,
                 hasNextPage: result.hasNextPage,
-                prevLink,                    
-                nextLink                      
+                prevLink,
+                nextLink,
             };
         } catch (error) {
             throw ErrorManager.handleError(error);
         }
-    }
+    }    
 
     async getOneById(id) {
         try {
